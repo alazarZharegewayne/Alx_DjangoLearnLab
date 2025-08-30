@@ -3,8 +3,8 @@
 ## Python Command
 ```python
 from bookshelf.models import Book
-book_to_delete = Book.objects.get(title="Nineteen Eighty-Four")
-book_to_delete.delete()
+book = Book.objects.get(title="Nineteen Eighty-Four")
+book.delete()
 print("Book deleted successfully")
 
 # Verify deletion
