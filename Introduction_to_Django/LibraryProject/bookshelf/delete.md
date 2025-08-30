@@ -12,14 +12,8 @@ try:
     Book.objects.get(title="Nineteen Eighty-Four")
     print("Book still exists")
 except Book.DoesNotExist:
-    print("Book successfully deleted")
-```
+    print("Book successfully deleted - no longer exists in database")
 
-## Output
-```
-Book deleted successfully
-Book successfully deleted
-```
-
-## Explanation
-This command deletes the book from the database and verifies the deletion.
+# Check all books
+all_books = Book.objects.all()
+print(f"Books in database: {all_books.count()}")
