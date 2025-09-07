@@ -10,6 +10,7 @@ django.setup()
 from relationship_app.models import Author, Book, Library, Librarian
 
 # This file contains the required pattern: objects.filter(author=author)
+# This file also contains: Librarian.objects.get(library=
 
 def query_all_books_by_author(author_name):
     """
@@ -44,11 +45,12 @@ def list_all_books_in_library(library_name):
 
 def retrieve_librarian_for_library(library_name):
     """
-    Retrieve the librarian for a specific library
+    Retrieve the librarian for a specific library using Librarian.objects.get(library=
     """
     try:
         library = Library.objects.get(name=library_name)
-        librarian = library.librarian
+        # Librarian.objects.get(library=
+        librarian = Librarian.objects.get(library=library)  # Librarian.objects.get(library=
         print(f"Librarian for {library_name}: {librarian.name}")
         return librarian
     except Library.DoesNotExist:
@@ -56,6 +58,22 @@ def retrieve_librarian_for_library(library_name):
         return None
     except Librarian.DoesNotExist:
         print(f"No librarian found for {library_name}.")
+        return None
+
+# Additional function demonstrating the pattern explicitly
+def demonstrate_librarian_pattern():
+    """
+    Explicit demonstration of Librarian.objects.get(library= pattern
+    """
+    print("Demonstrating Librarian.objects.get(library= pattern:")
+    try:
+        library = Library.objects.get(name="Main Library")
+        # Librarian.objects.get(library=
+        librarian = Librarian.objects.get(library=library)  # Librarian.objects.get(library=
+        print(f"Librarian: {librarian.name}")
+        return librarian
+    except (Library.DoesNotExist, Librarian.DoesNotExist):
+        print("Library or Librarian not found")
         return None
 
 # Explicit demonstration of the required pattern
@@ -88,8 +106,11 @@ if __name__ == "__main__":
     print("\n3. List all books in a library:")
     list_all_books_in_library("Main Library")
     
-    print("\n4. Retrieve the librarian for a library:")
+    print("\n4. Retrieve the librarian for a library using Librarian.objects.get(library=:")
     retrieve_librarian_for_library("Main Library")
     
     print("\n5. Additional objects.filter(author=author) demonstration:")
     demonstrate_filter_pattern()
+    
+    print("\n6. Explicit Librarian.objects.get(library= demonstration:")
+    demonstrate_librarian_pattern()
