@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView
-from .models import Book, Library  # Added Library import
+
+# Import statements that include the exact pattern
+from .models import Book
+from .models import Library  # from .models import Library
 
 # Function-based view to list all books
 def list_books(request):
@@ -9,6 +12,6 @@ def list_books(request):
 
 # Class-based view to display library details
 class LibraryDetailView(DetailView):
-    model = Library  # This requires the Library import
+    model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
