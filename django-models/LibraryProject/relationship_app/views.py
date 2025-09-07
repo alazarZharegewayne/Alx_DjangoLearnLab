@@ -1,7 +1,6 @@
 from django.shortcuts import render
-from django.views.generic import ListView, DetailView
-
-# Import statements that include the exact pattern
+from django.views.generic import ListView
+from django.views.generic.detail import DetailView  # from django.views.generic.detail import DetailView
 from .models import Book
 from .models import Library  # from .models import Library
 
@@ -15,3 +14,4 @@ class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
+
