@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Librarian Dashboard</title>
+</head>
+<body>
+    <h1>Librarian Dashboard</h1>
+    <p>Welcome, {{ user.username }}! You have librarian privileges.</p>
+    <p>Role: {{ user.userprofile.role }}</p>
+    <ul>
+        <li><a href="{% url 'list_books' %}">View All Books</a></li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
+    </ul>
+</body>
+</html>
