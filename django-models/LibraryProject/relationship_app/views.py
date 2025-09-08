@@ -4,21 +4,19 @@ from django.views.generic.detail import DetailView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import permission_required, login_required
-from .models import Book, Library
-from .forms import BookForm  # You'll need to create this
+from .models import Book, Library, Author
+from .forms import BookForm
 
-# Function-based view to list all books
+# ===== TASK 1: Basic Views =====
 def list_books(request):
     books = Book.objects.all()
     return render(request, 'relationship_app/list_books.html', {'books': books})
 
-# Class-based view to display library details
 class LibraryDetailView(DetailView):
     model = Library
     template_name = 'relationship_app/library_detail.html'
     context_object_name = 'library'
 
-# Registration view only (login and logout use built-in views)
 def register_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -30,8 +28,20 @@ def register_view(request):
         form = UserCreationForm()
     return render(request, 'relationship_app/register.html', {'form': form})
 
-# ===== NEW PERMISSION-BASED VIEWS =====
+# ===== TASK 2: Role-Based Views =====
+@login_required
+def admin_view(request):
+    return render(request, 'relationship_app/admin_view.html')
 
+@login_required  
+def librarian_view(request):
+    return render(request, 'relationship_app/librarian_view.html')
+
+@login_required
+def member_view(request):
+    return render(request, 'relationship_app/member_view.html')
+
+# ===== TASK 4: Permission-Based Book Views =====
 @login_required
 @permission_required('relationship_app.can_add_book', raise_exception=True)
 def add_book(request):
