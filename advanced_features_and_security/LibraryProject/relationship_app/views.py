@@ -4,7 +4,8 @@ from django.views.generic.detail import DetailView
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.contrib.auth.decorators import permission_required, login_required
-from .models import Book, Library, Author
+from bookshelf.models import Book, author
+from .models import Library
 from .forms import BookForm
 
 # ===== TASK 1: Basic Views =====
