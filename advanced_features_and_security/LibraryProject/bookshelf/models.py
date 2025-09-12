@@ -3,12 +3,9 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.utils.translation import gettext_lazy as _
 
 class CustomUserManager(BaseUserManager):
-    """Define a model manager for User model with no username field."""
-    
     use_in_migrations = True
 
     def _create_user(self, email, password, **extra_fields):
-        """Create and save a User with the given email and password."""
         if not email:
             raise ValueError('The given email must be set')
         email = self.normalize_email(email)
@@ -18,13 +15,11 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_user(self, email, password=None, **extra_fields):
-        """Create and save a regular User with the given email and password."""
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
         return self._create_user(email, password, **extra_fields)
 
     def create_superuser(self, email, password, **extra_fields):
-        """Create and save a SuperUser with the given email and password."""
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
 
@@ -36,19 +31,23 @@ class CustomUserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractUser):
-    # Remove username field, use email instead
     username = None
     email = models.EmailField(_('email address'), unique=True)
-    
-    # Add custom fields
     date_of_birth = models.DateField(null=True, blank=True)
     profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
     
-    # Set email as the unique identifier
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
     
     objects = CustomUserManager()
+    
+    class Meta:
+        permissions = [
+            ("can_view_dashboard", "Can view dashboard"),
+            ("can_create_content", "Can create content"),
+            ("can_edit_content", "Can edit content"),
+            ("can_delete_content", "Can delete content"),
+        ]
     
     def __str__(self):
         return self.email

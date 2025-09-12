@@ -1,0 +1,113 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import ListView
+from django.views.generic.detail import DetailView
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.contrib.auth.decorators import permission_required, login_required
+from .models import Book, Library, Author
+from .forms import BookForm
+
+def list_books(request):
+    books = Book.objects.all()
+    return render(request, 'relationship_app/list_books.html', {'books': books})
+
+class LibraryDetailView(DetailView):
+    model = Library
+    template_name = 'relationship_app/library_detail.html'
+    context_object_name = 'library'
+
+def register_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('list_books')
+    else:
+        form = UserCreationForm()
+    return render(request, 'relationship_app/register.html', {'form': form})
+
+@login_required
+def admin_view(request):
+    return render(request, 'relationship_app/admin_view.html')
+
+@login_required  
+def librarian_view(request):
+    return render(request, 'relationship_app/librarian_view.html')
+
+@login_required
+def member_view(request):
+    return render(request, 'relationship_app/member_view.html')
+
+@login_required
+@permission_required('bookshelf.can_add_book', raise_exception=True)
+def add_book(request):
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('list_books')
+    else:
+        form = BookForm()
+    return render(request, 'relationship_app/add_book.html', {'form': form})
+
+@login_required
+@permission_required('bookshelf.can_change_book', raise_exception=True)
+def edit_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == 'POST':
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            form.save()
+            return redirect('list_books')
+    else:
+        form = BookForm(instance=book)
+    return render(request, 'relationship_app/edit_book.html', {'form': form, 'book': book})
+
+@login_required
+@permission_required('bookshelf.can_delete_book', raise_exception=True)
+def delete_book(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    if request.method == 'POST':
+        book.delete()
+        return redirect('list_books')
+    return render(request, 'relationship_app/delete_book.html', {'book': book})
+
+@login_required
+@permission_required('bookshelf.can_view_dashboard', raise_exception=True)
+def dashboard_view(request):
+    return render(request, 'relationship_app/dashboard.html')
+
+@login_required
+@permission_required('bookshelf.can_create_content', raise_exception=True)
+def create_content_view(request):
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard')
+    else:
+        form = BookForm()
+    return render(request, 'relationship_app/create_content.html', {'form': form})
+
+@login_required
+@permission_required('bookshelf.can_edit_content', raise_exception=True)
+def edit_content_view(request, content_id):
+    content = get_object_or_404(Book, id=content_id)
+    if request.method == 'POST':
+        form = BookForm(request.POST, instance=content)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard')
+    else:
+        form = BookForm(instance=content)
+    return render(request, 'relationship_app/edit_content.html', {'form': form, 'content': content})
+
+@login_required
+@permission_required('bookshelf.can_delete_content', raise_exception=True)
+def delete_content_view(request, content_id):
+    content = get_object_or_404(Book, id=content_id)
+    if request.method == 'POST':
+        content.delete()
+        return redirect('dashboard')
+    return render(request, 'relationship_app/delete_content.html', {'content': content})

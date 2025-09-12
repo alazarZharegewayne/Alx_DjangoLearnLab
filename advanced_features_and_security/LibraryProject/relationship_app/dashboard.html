@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Welcome to Dashboard</h1>
+    
+    {% if perms.bookshelf.can_create_content %}
+    <a href="{% url 'create_content' %}">Create New Content</a><br>
+    {% endif %}
+    
+    {% if perms.bookshelf.can_edit_content %}
+    <a href="{% url 'edit_content' content_id=1 %}">Edit Content</a><br>
+    {% endif %}
+    
+    {% if perms.bookshelf.can_delete_content %}
+    <a href="{% url 'delete_content' content_id=1 %}">Delete Content</a><br>
+    {% endif %}
+    
+    <a href="{% url 'list_books' %}">View Books</a>
+</body>
+</html>
