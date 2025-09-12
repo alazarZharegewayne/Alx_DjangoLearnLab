@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book List</title>
+</head>
+<body>
+    <h1>Book List</h1>
+    
+    <!-- Add navigation to role-based dashboards -->
+    <nav>
+        {% if user.is_authenticated %}
+            <a href="{% url 'logout' %}">Logout</a> |
+            {% if perms.relationship_app.can_add_book %}
+            <a href="{% url 'add_book' %}">Add New Book</a> |
+            {% endif %}
+            <a href="{% url 'admin_view' %}">Admin Dashboard</a> |
+            <a href="{% url 'librarian_view' %}">Librarian Dashboard</a> |
+            <a href="{% url 'member_view' %}">Member Dashboard</a>
+        {% else %}
+            <a href="{% url 'login' %}">Login</a> |
+            <a href="{% url 'register' %}">Register</a>
+        {% endif %}
+    </nav>
+    
+    <ul>
+        {% for book in books %}
+        <li>
+            {{ book.title }} by {{ book.author.name }}
+            {% if perms.relationship_app.can_change_book %}
+            <a href="{% url 'edit_book' book.id %}">Edit</a>
+            {% endif %}
+            {% if perms.relationship_app.can_delete_book %}
+            <a href="{% url 'delete_book' book.id %}">Delete</a>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
