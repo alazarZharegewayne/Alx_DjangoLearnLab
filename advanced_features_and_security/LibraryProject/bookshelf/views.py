@@ -108,3 +108,17 @@ def health_check(request):
         'timestamp': '2024-01-01T00:00:00Z',
         'version': '1.0.0'
     })
+
+def form_example_view(request):
+    if request.method == 'POST':
+        form = ExampleForm(request.POST)
+        if form.is_valid():
+            # Process valid form data
+            return render(request, 'bookshelf/form_success.html', {
+                'name': form.cleaned_data['name'],
+                'email': form.cleaned_data['email']
+            })
+    else:
+        form = ExampleForm()
+    
+    return render(request, 'bookshelf/form_example.html', {'form': form})
