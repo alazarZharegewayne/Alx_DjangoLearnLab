@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseBadRequest, JsonResponse
 from .models import Book, Author
-from .forms import BookForm, ExampleForm, SearchForm  # ADD ExampleForm HERE
+from .forms import BookForm, ExampleForm, SearchForm, ExampleForm
 
 @login_required
 def book_list(request):
