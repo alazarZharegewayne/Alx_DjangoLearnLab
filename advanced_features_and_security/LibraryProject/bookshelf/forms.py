@@ -16,11 +16,6 @@ class BookForm(forms.ModelForm):
         title = self.cleaned_data.get('title')
         if title and len(title) < 2:
             raise ValidationError("Title must be at least 2 characters long.")
-        
-        # XSS protection - prevent script tags
-        if title and re.search(r'<script.*?>.*?</script>', title, re.IGNORECASE):
-            raise ValidationError("Invalid characters in title.")
-        
         return title
 
 class ExampleForm(forms.Form):
@@ -35,11 +30,11 @@ class ExampleForm(forms.Form):
     
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={
-            'class': 'form-control', 
+            'class': 'form-control',
             'placeholder': 'Enter your email'
         })
     )
-    
+
     message = forms.CharField(
         widget=forms.Textarea(attrs={
             'class': 'form-control',
@@ -48,14 +43,14 @@ class ExampleForm(forms.Form):
         }),
         required=False
     )
-    
+
     age = forms.IntegerField(
         min_value=0,
         max_value=120,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         required=False
     )
-    
+
     agree_to_terms = forms.BooleanField(
         required=True,
         error_messages={'required': 'You must agree to the terms'}
@@ -65,11 +60,6 @@ class ExampleForm(forms.Form):
         name = self.cleaned_data.get('name')
         if name and not re.match(r'^[a-zA-Z\s]+$', name):
             raise ValidationError("Name can only contain letters and spaces.")
-        
-        # XSS protection
-        if name and re.search(r'[<>{}]', name):
-            raise ValidationError("Invalid characters in name.")
-        
         return name
 
     def clean_email(self):
@@ -77,14 +67,6 @@ class ExampleForm(forms.Form):
         if email and not email.endswith(('.com', '.org', '.net')):
             raise ValidationError("Please enter a valid email address.")
         return email
-
-    def clean_message(self):
-        message = self.cleaned_data.get('message')
-        if message:
-            # XSS protection - remove script tags
-            message = re.sub(r'<script.*?>.*?</script>', '', message, flags=re.IGNORECASE)
-            message = re.sub(r'javascript:', '', message, flags=re.IGNORECASE)
-        return message
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
@@ -126,23 +108,3 @@ class SearchForm(forms.Form):
         initial='both',
         widget=forms.Select(attrs={'class': 'form-control'})
     )
-
-    def clean_query(self):
-        query = self.cleaned_data.get('query')
-        if query:
-            # SQL injection protection
-            if re.search(r'[\'\";\\]', query):
-                raise ValidationError("Invalid search characters.")
-        return query
-
-class ContactForm(forms.Form):
-    subject = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    message = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 4}))
-    sender = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
-    cc_myself = forms.BooleanField(required=False)
-
-    def clean_subject(self):
-        subject = self.cleaned_data.get('subject')
-        if subject and len(subject) < 5:
-            raise ValidationError("Subject must be at least 5 characters long.")
-        return subject
