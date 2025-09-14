@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Book List</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
     <h1>Book List</h1>
@@ -9,6 +10,14 @@
     {% if perms.bookshelf.can_create_book %}
     <a href="{% url 'bookshelf:add_book' %}">Add New Book</a>
     {% endif %}
+    
+    <!-- Search Form with CSRF -->
+    <form method="get" action="{% url 'bookshelf:book_list' %}">
+        {% csrf_token %}
+        <input type="text" name="q" placeholder="Search books..." 
+               value="{{ request.GET.q|default:'' }}">
+        <button type="submit">Search</button>
+    </form>
     
     <ul>
         {% for book in books %}
