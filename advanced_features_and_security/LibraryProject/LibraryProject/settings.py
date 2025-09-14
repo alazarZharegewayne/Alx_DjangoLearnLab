@@ -80,12 +80,19 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ===== SECURITY SETTINGS =====
+# Proxy configuration for HTTPS detection behind load balancers
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Browser security headers
 SECURE_BROWSER_XSS_FILTER = True
 X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Secure cookies - only send over HTTPS
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
+# Production-only security settings
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 31536000
