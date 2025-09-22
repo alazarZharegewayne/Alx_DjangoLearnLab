@@ -7,4 +7,5 @@ class BookAdmin(admin.ModelAdmin):
     list_filter = ['author']
     search_fields = ['title', 'author']
 
-admin.site.register(Book)
+# Alternative method
+# admin.site.register(Book, BookAdmin)
