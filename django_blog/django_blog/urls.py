@@ -2,13 +2,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from blog import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home, name='home'),
-    path('posts/', views.post_list, name='post-list'),
-    path('posts/<int:pk>/', views.post_detail, name='post-detail'),
+    path('', include('blog.urls')),  # Include blog URLs
 ]
 
 # Serve static files during development
