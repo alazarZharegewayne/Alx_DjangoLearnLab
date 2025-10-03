@@ -1,0 +1,114 @@
+/* Register page specific styles */
+.register-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    margin: 0;
+}
+
+.register-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    border: none;
+    overflow: hidden;
+    width: 100%;
+    max-width: 500px;
+}
+
+.register-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+
+.register-header h3 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.8rem;
+}
+
+.register-body {
+    padding: 2.5rem;
+}
+
+.register-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.register-form .form-control {
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    padding: 12px 15px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.register-form .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.register-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    padding: 15px;
+    font-weight: 600;
+    font-size: 16px;
+    color: white;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.register-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.password-strength {
+    margin-top: 0.5rem;
+}
+
+.strength-text {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.register-links {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.register-links a {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.register-links a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 576px) {
+    .register-page {
+        padding: 10px;
+    }
+    
+    .register-container {
+        border-radius: 10px;
+    }
+    
+    .register-header {
+        padding: 1.5rem;
+    }
+    
+    .register-body {
+        padding: 1.5rem;
+    }
+}
