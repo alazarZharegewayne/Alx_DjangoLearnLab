@@ -5,7 +5,7 @@
 {% block content %}
 <div class="row">
     <div class="col-md-8">
-        <div class="jumbotron bg-light p-5 rounded">
+        <div class="jumbotron bg-light p-5 rounded mb-4">
             <h1 class="display-4">Welcome to Django Blog</h1>
             <p class="lead">A simple and elegant blogging platform built with Django.</p>
             <hr class="my-4">
@@ -37,9 +37,18 @@
                 </div>
             </div>
             {% endfor %}
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'post-list' %}" class="btn btn-outline-secondary">View All Posts</a>
+            </div>
         {% else %}
             <div class="alert alert-info">
                 <p>No posts available yet. Be the first to write one!</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'post-create' %}" class="btn btn-primary">Write Your First Post</a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary">Join Now to Write Posts</a>
+                {% endif %}
             </div>
         {% endif %}
     </div>
@@ -67,6 +76,27 @@
             <div class="card-body">
                 <p>Total Posts: <strong>{{ total_posts }}</strong></p>
                 <p>Total Authors: <strong>{{ total_authors }}</strong></p>
+                {% if user.is_authenticated %}
+                <p>Your Posts: <strong>{{ user.blog_posts.count }}</strong></p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'post-list' %}" class="btn btn-outline-primary">Browse All Posts</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'post-create' %}" class="btn btn-outline-success">Write New Post</a>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-info">My Profile</a>
+                    {% else %}
+                    <a href="{% url 'register' %}" class="btn btn-outline-success">Join Our Community</a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-info">Login</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>

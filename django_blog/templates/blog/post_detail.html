@@ -20,11 +20,53 @@
                     {{ post.content|linebreaks }}
                 </div>
             </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <a href="{% url 'post-list' %}" class="btn btn-secondary">← All Posts</a>
+                        <a href="{% url 'home' %}" class="btn btn-outline-primary">← Home</a>
+                    </div>
+                    {% if user.is_authenticated and user == post.author %}
+                    <div>
+                        <a href="{% url 'post-update' post.pk %}" class="btn btn-outline-warning">Edit Post</a>
+                        <a href="{% url 'post-delete' post.pk %}" class="btn btn-outline-danger">Delete Post</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
         </article>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>About the Author</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Username:</strong> {{ post.author.username }}</p>
+                <p><strong>Email:</strong> {{ post.author.email }}</p>
+                <p><strong>Member since:</strong> {{ post.author.date_joined|date:"F d, Y" }}</p>
+                <p><strong>Total posts:</strong> {{ post.author.blog_posts.count }}</p>
+            </div>
+        </div>
         
-        <div class="mt-4">
-            <a href="{% url 'post-list' %}" class="btn btn-secondary">← Back to All Posts</a>
-            <a href="{% url 'home' %}" class="btn btn-outline-primary">← Back to Home</a>
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Recent Posts by {{ post.author.username }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for recent_post in post.author.blog_posts.all|slice:":5" %}
+                        {% if recent_post.pk != post.pk %}
+                        <a href="{% url 'post-detail' recent_post.pk %}" class="list-group-item list-group-item-action">
+                            {{ recent_post.title }}
+                        </a>
+                        {% endif %}
+                    {% empty %}
+                        <p class="text-muted">No other posts by this author.</p>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
 </div>

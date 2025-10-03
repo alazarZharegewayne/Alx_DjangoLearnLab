@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import PostListView, PostDetailView, PostCreateView, PostUpdateView, PostDeleteView
 
 urlpatterns = [
     # Authentication URLs
@@ -8,11 +9,11 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('profile/', views.profile, name='profile'),
     
-    # Post URLs
+    # Post URLs (Class-based views)
     path('', views.home, name='home'),
-    path('posts/', views.post_list, name='post-list'),
-    path('posts/<int:pk>/', views.post_detail, name='post-detail'),
-    path('posts/new/', views.post_create, name='post-create'),
-    path('posts/<int:pk>/edit/', views.post_update, name='post-update'),
-    path('posts/<int:pk>/delete/', views.post_delete, name='post-delete'),
+    path('posts/', PostListView.as_view(), name='post-list'),
+    path('posts/<int:pk>/', PostDetailView.as_view(), name='post-detail'),
+    path('posts/new/', PostCreateView.as_view(), name='post-create'),
+    path('posts/<int:pk>/update/', PostUpdateView.as_view(), name='post-update'),
+    path('posts/<int:pk>/delete/', PostDeleteView.as_view(), name='post-delete'),
 ]
