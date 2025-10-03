@@ -1,24 +1,43 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework import filters
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Book, Author
 from .serializers import BookSerializer, AuthorSerializer
+from .filters import BookFilter
 
 class BookListView(generics.ListAPIView):
     """
     BookListView provides a read-only endpoint that returns a list of all Book instances.
-    This view uses DRF's ListAPIView which handles GET requests automatically.
-    Permission: AllowAny - Anyone can view the book list without authentication.
+    Enhanced with comprehensive filtering, searching, and ordering capabilities.
+    
+    Features:
+    - Filtering: Filter by title, author name, and publication year ranges
+    - Searching: Search across title and author name fields
+    - Ordering: Order by any book field, default by publication year (descending)
+    
+    Permission: IsAuthenticatedOrReadOnly - Read access for all, write for authenticated users.
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    # Filtering configuration
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = BookFilter
+    
+    # Search configuration - search across title and author name
+    search_fields = ['title', 'author__name']
+    
+    # Ordering configuration - default ordering and available fields
+    ordering_fields = ['title', 'publication_year', 'author__name']
+    ordering = ['-publication_year']  # Default: newest books first
 
 
 class BookDetailView(generics.RetrieveAPIView):
     """
     BookDetailView provides a read-only endpoint to retrieve a single Book instance by ID.
-    This view uses DRF's RetrieveAPIView which handles GET requests for single objects.
-    Permission: AllowAny - Anyone can view book details without authentication.
+    Permission: IsAuthenticatedOrReadOnly - Read access for all, write for authenticated users.
     """
     queryset = Book.objects.all()
     serializer_class = BookSerializer
@@ -28,7 +47,6 @@ class BookDetailView(generics.RetrieveAPIView):
 class BookCreateView(generics.CreateAPIView):
     """
     BookCreateView provides an endpoint to create new Book instances.
-    This view uses DRF's CreateAPIView which handles POST requests.
     Permission: IsAuthenticated - Only authenticated users can create new books.
     Includes custom validation through the BookSerializer.
     """
@@ -47,7 +65,6 @@ class BookCreateView(generics.CreateAPIView):
 class BookUpdateView(generics.UpdateAPIView):
     """
     BookUpdateView provides an endpoint to update existing Book instances.
-    This view uses DRF's UpdateAPIView which handles PUT and PATCH requests.
     Permission: IsAuthenticated - Only authenticated users can update books.
     Includes full validation through the BookSerializer.
     """
@@ -66,7 +83,6 @@ class BookUpdateView(generics.UpdateAPIView):
 class BookDeleteView(generics.DestroyAPIView):
     """
     BookDeleteView provides an endpoint to delete Book instances.
-    This view uses DRF's DestroyAPIView which handles DELETE requests.
     Permission: IsAuthenticated - Only authenticated users can delete books.
     Returns 204 No Content on successful deletion.
     """
@@ -86,7 +102,7 @@ class AuthorListView(generics.ListAPIView):
     """
     AuthorListView provides a read-only endpoint that returns a list of all Author instances.
     Includes nested book data through the AuthorSerializer.
-    Permission: AllowAny - Anyone can view the author list without authentication.
+    Permission: IsAuthenticatedOrReadOnly - Read access for all, write for authenticated users.
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
@@ -97,7 +113,7 @@ class AuthorDetailView(generics.RetrieveAPIView):
     """
     AuthorDetailView provides a read-only endpoint to retrieve a single Author instance by ID.
     Includes nested book data through the AuthorSerializer.
-    Permission: AllowAny - Anyone can view author details without authentication.
+    Permission: IsAuthenticatedOrReadOnly - Read access for all, write for authenticated users.
     """
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
