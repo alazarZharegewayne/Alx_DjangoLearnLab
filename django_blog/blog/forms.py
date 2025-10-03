@@ -4,10 +4,6 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import Post
 
 class UserRegisterForm(UserCreationForm):
-    """
-    Custom registration form that extends Django's UserCreationForm
-    to include email field and additional styling.
-    """
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
@@ -47,22 +43,16 @@ class UserRegisterForm(UserCreationForm):
     
     def __init__(self, *args, **kwargs):
         super(UserRegisterForm, self).__init__(*args, **kwargs)
-        # Add Bootstrap classes to password fields
         self.fields['password1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Enter password'})
         self.fields['password2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Confirm password'})
     
     def clean_email(self):
-        """Validate that the email is unique"""
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError('This email address is already in use.')
         return email
 
-
 class UserUpdateForm(forms.ModelForm):
-    """
-    Form for updating user profile information (username, email, first name, last name)
-    """
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={'class': 'form-control'})
@@ -89,20 +79,14 @@ class UserUpdateForm(forms.ModelForm):
         }
     
     def clean_email(self):
-        """Validate that the email is unique, excluding current user"""
         email = self.cleaned_data.get('email')
         username = self.cleaned_data.get('username')
         
-        # Check if email is already used by another user
         if User.objects.filter(email=email).exclude(username=username).exists():
             raise forms.ValidationError('This email address is already in use.')
         return email
 
-
 class PostForm(forms.ModelForm):
-    """
-    Form for creating and updating blog posts
-    """
     class Meta:
         model = Post
         fields = ['title', 'content']
@@ -120,7 +104,6 @@ class PostForm(forms.ModelForm):
         }
     
     def clean_title(self):
-        """Validate title length"""
         title = self.cleaned_data.get('title')
         if len(title) < 5:
             raise forms.ValidationError('Title must be at least 5 characters long.')
