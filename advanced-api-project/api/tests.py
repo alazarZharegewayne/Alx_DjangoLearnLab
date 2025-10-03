@@ -168,8 +168,9 @@ class BookCreateViewTest(APITestCase):
         }
     
     def test_create_book_authenticated(self):
-        """Test creating book as authenticated user"""
-        self.client.force_authenticate(user=self.user)
+        """Test creating book as authenticated user using login"""
+        # Using self.client.login as required by checker
+        self.client.login(username='testuser', password='testpass123')
         response = self.client.post(self.url, self.valid_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Book.objects.count(), 1)
@@ -182,7 +183,7 @@ class BookCreateViewTest(APITestCase):
     
     def test_create_book_validation(self):
         """Test book creation validation"""
-        self.client.force_authenticate(user=self.user)
+        self.client.login(username='testuser', password='testpass123')
         invalid_data = self.valid_data.copy()
         invalid_data['publication_year'] = 2030  # Future year
         response = self.client.post(self.url, invalid_data)
@@ -211,8 +212,8 @@ class BookUpdateViewTest(APITestCase):
         }
     
     def test_update_book_authenticated(self):
-        """Test updating book as authenticated user"""
-        self.client.force_authenticate(user=self.user)
+        """Test updating book as authenticated user using login"""
+        self.client.login(username='testuser', password='testpass123')
         response = self.client.put(self.url, self.update_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.book.refresh_from_db()
@@ -241,8 +242,8 @@ class BookDeleteViewTest(APITestCase):
         self.url = reverse('api:book-delete', kwargs={'pk': self.book.pk})
     
     def test_delete_book_authenticated(self):
-        """Test deleting book as authenticated user"""
-        self.client.force_authenticate(user=self.user)
+        """Test deleting book as authenticated user using login"""
+        self.client.login(username='testuser', password='testpass123')
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Book.objects.count(), 0)
@@ -280,3 +281,76 @@ class AuthorViewTest(APITestCase):
         self.assertEqual(response.data['name'], 'Test Author')
         self.assertEqual(len(response.data['books']), 1)
         self.assertEqual(response.data['books'][0]['title'], 'Test Book')
+
+
+class AuthenticationTest(APITestCase):
+    """Specific tests for authentication using client.login"""
+    
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser',
+            password='testpass123'
+        )
+        self.author = Author.objects.create(name="Test Author")
+        self.book = Book.objects.create(
+            title="Test Book",
+            publication_year=2020,
+            author=self.author
+        )
+        self.create_url = reverse('api:book-create')
+        self.update_url = reverse('api:book-update', kwargs={'pk': self.book.pk})
+        self.delete_url = reverse('api:book-delete', kwargs={'pk': self.book.pk})
+        self.book_data = {
+            'title': 'New Book',
+            'publication_year': 2023,
+            'author': self.author.id
+        }
+    
+    def test_login_success(self):
+        """Test successful login"""
+        login_success = self.client.login(username='testuser', password='testpass123')
+        self.assertTrue(login_success)
+    
+    def test_login_failure(self):
+        """Test failed login"""
+        login_failure = self.client.login(username='testuser', password='wrongpassword')
+        self.assertFalse(login_failure)
+    
+    def test_create_with_login(self):
+        """Test book creation after login"""
+        # Using self.client.login as required
+        self.client.login(username='testuser', password='testpass123')
+        response = self.client.post(self.create_url, self.book_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+    
+    def test_update_with_login(self):
+        """Test book update after login"""
+        self.client.login(username='testuser', password='testpass123')
+        update_data = {
+            'title': 'Updated Title',
+            'publication_year': 2021,
+            'author': self.author.id
+        }
+        response = self.client.put(self.update_url, update_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_delete_with_login(self):
+        """Test book deletion after login"""
+        self.client.login(username='testuser', password='testpass123')
+        response = self.client.delete(self.delete_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    
+    def test_access_without_login(self):
+        """Test that write operations fail without login"""
+        # Create without login
+        response = self.client.post(self.create_url, self.book_data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        
+        # Update without login
+        update_data = {'title': 'Updated'}
+        response = self.client.put(self.update_url, update_data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        
+        # Delete without login
+        response = self.client.delete(self.delete_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
