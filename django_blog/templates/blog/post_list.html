@@ -24,14 +24,15 @@
                         <small class="text-muted">
                             By <strong>{{ post.author.username }}</strong> on {{ post.published_date|date:"F d, Y" }}
                         </small>
-                        <div>
-                            <a href="{% url 'post-detail' post.pk %}" class="btn btn-outline-primary btn-sm">Read More</a>
-                            {% if user.is_authenticated and user == post.author %}
-                            <a href="{% url 'post-update' post.pk %}" class="btn btn-outline-secondary btn-sm">Edit</a>
-                            <a href="{% url 'post-delete' post.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
-                            {% endif %}
-                        </div>
-                    </div>
+<!-- In the post list loop, update the URLs -->
+<div>
+    <a href="{% url 'post-detail' post.pk %}" class="btn btn-outline-primary btn-sm">Read More</a>
+    {% if user.is_authenticated and user == post.author %}
+    <a href="{% url 'post-update' post.pk %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+    <a href="{% url 'post-delete' post.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+    {% endif %}
+</div>                    
+</div>
                 </div>
             </div>
             {% endfor %}
