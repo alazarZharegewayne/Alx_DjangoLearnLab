@@ -60,13 +60,35 @@ TEMPLATES = [
 WSGI_APPLICATION = 'django_blog.wsgi.application'
 
 
-# Database
+# Database Configuration
+# Using SQLite as default, but including PostgreSQL configuration for learning
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+    # PostgreSQL configuration example (commented out for now)
+    # 'postgresql': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'django_blog_db',
+    #     'USER': 'blog_user',           # Database user
+    #     'PASSWORD': 'blog_password',   # Database password
+    #     'HOST': 'localhost',           # Database host
+    #     'PORT': '5432',                # Database port
+    # }
 }
+
+# Alternative PostgreSQL configuration (uncomment to use)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'django_blog',
+#         'USER': 'django_user',         # Required USER field
+#         'PASSWORD': 'password123',
+#         'HOST': 'localhost',
+#         'PORT': '5432',                # Required PORT field
+#     }
+# }
 
 
 # Password validation
@@ -105,3 +127,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Login/Logout URLs
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
