@@ -67,12 +67,8 @@ def register(request):
     else:
         form = UserRegisterForm()
     
-    context = {
-        'form': form,
-        'title': 'Register'
-    }
-    
-    return render(request, 'blog/auth_form.html', context)
+    # Use dedicated register template
+    return render(request, 'blog/register.html', {'form': form})
 
 def user_login(request):
     """
@@ -103,12 +99,8 @@ def user_login(request):
     form.fields['username'].widget.attrs.update({'class': 'form-control'})
     form.fields['password'].widget.attrs.update({'class': 'form-control'})
     
-    context = {
-        'form': form,
-        'title': 'Login'
-    }
-    
-    return render(request, 'blog/auth_form.html', context)
+    # Use dedicated login template
+    return render(request, 'blog/login.html', {'form': form})
 
 @login_required
 def user_logout(request):
@@ -227,6 +219,7 @@ def post_delete(request, pk):
     }
     
     return render(request, 'blog/post_confirm_delete.html', context)
+
 def test_static_files(request):
     """
     Test view to verify static files are loading correctly
