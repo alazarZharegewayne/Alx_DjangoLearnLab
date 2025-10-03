@@ -7,6 +7,7 @@ urlpatterns = [
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
     path('profile/', views.profile, name='profile'),
+    path('test-static/', views.test_static_files, name='test-static'),
     
     # Post URLs
     path('', views.home, name='home'),

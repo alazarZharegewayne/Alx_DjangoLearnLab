@@ -227,3 +227,8 @@ def post_delete(request, pk):
     }
     
     return render(request, 'blog/post_confirm_delete.html', context)
+def test_static_files(request):
+    """
+    Test view to verify static files are loading correctly
+    """
+    return render(request, 'blog/test_static.html')

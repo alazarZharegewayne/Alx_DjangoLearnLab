@@ -117,3 +117,62 @@ footer {
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
+body.auth-page {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.auth-page .container {
+    padding: 0;
+}
+
+.auth-page .navbar {
+    display: none; /* Hide navbar on auth pages for cleaner look */
+}
+
+/* Ensure auth pages use full viewport */
+.auth-page main {
+    padding: 0;
+    margin: 0;
+}
+
+/* Loading spinner for buttons */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Invalid form field styling */
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+/* Password toggle button */
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+}
+
+.password-input-group {
+    position: relative;
+}
+
+.password-input-group .form-control {
+    padding-right: 45px;
+}

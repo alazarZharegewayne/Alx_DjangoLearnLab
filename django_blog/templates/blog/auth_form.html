@@ -2,19 +2,23 @@
 
 {% block title %}{{ title }} - Django Blog{% endblock %}
 
+{% block extra_css %}
+<link href="/static/css/auth.css" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="text-center">{{ title }}</h3>
-            </div>
-            <div class="card-body">
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h3>{{ title }}</h3>
+        </div>
+        <div class="auth-body">
+            <div class="auth-form">
                 <form method="POST">
                     {% csrf_token %}
                     
                     {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger auth-alert">
                             {% for error in form.non_field_errors %}
                                 {{ error }}
                             {% endfor %}
@@ -34,7 +38,7 @@
                         {% endif %}
                         
                         {% if field.errors %}
-                            <div class="alert alert-danger mt-1">
+                            <div class="alert alert-danger auth-alert mt-2">
                                 {% for error in field.errors %}
                                     {{ error }}
                                 {% endfor %}
@@ -44,25 +48,25 @@
                     {% endfor %}
                     
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="auth-btn">
                             {{ title }}
                         </button>
                     </div>
                 </form>
                 
-                <hr class="my-4">
-                
-                {% if title == 'Login' %}
-                <div class="text-center">
+                <div class="auth-links">
+                    {% if title == 'Login' %}
                     <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
-                </div>
-                {% elif title == 'Register' %}
-                <div class="text-center">
+                    {% elif title == 'Register' %}
                     <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+                    {% endif %}
                 </div>
-                {% endif %}
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/js/auth.js"></script>
 {% endblock %}
