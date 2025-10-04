@@ -20,21 +20,19 @@
                     {{ post.content|linebreaks }}
                 </div>
             </div>
-<!-- In the card footer, update the URLs -->
-<div class="card-footer">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <a href="{% url 'post-list' %}" class="btn btn-secondary">← All Posts</a>
-            <a href="{% url 'home' %}" class="btn btn-outline-primary">← Home</a>
-        </div>
-        {% if user.is_authenticated and user == post.author %}
-        <div>
-            <a href="{% url 'post-update' post.pk %}" class="btn btn-outline-warning">Edit Post</a>
-            <a href="{% url 'post-delete' post.pk %}" class="btn btn-outline-danger">Delete Post</a>
-        </div>
-        {% endif %}
-    </div>
-</div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <a href="{% url 'post-list' %}" class="btn btn-secondary">← All Posts</a>
+                        <a href="{% url 'home' %}" class="btn btn-outline-primary">← Home</a>
+                    </div>
+                    {% if user.is_authenticated and user == post.author %}
+                    <div>
+                        <a href="{% url 'post-update' post.pk %}" class="btn btn-outline-warning">Edit Post</a>
+                        <a href="{% url 'post-delete' post.pk %}" class="btn btn-outline-danger">Delete Post</a>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </article>
     </div>
