@@ -35,6 +35,85 @@
                 </div>
             </div>
         </article>
+
+        <!-- Comments Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    Comments 
+                    <span class="badge bg-primary">{{ comments.count }}</span>
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Comment Form -->
+                {% if user.is_authenticated %}
+                <div class="mb-4">
+                    <h5>Add a Comment</h5>
+                    <form method="POST" action="{% url 'add-comment' post.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ comment_form.content }}
+                            {% if comment_form.content.errors %}
+                                <div class="alert alert-danger mt-2">
+                                    {% for error in comment_form.content.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Post Comment</button>
+                    </form>
+                </div>
+                <hr>
+                {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">
+                        <a href="{% url 'login' %}">Login</a> or 
+                        <a href="{% url 'register' %}">register</a> to leave a comment.
+                    </p>
+                </div>
+                {% endif %}
+
+                <!-- Comments List -->
+                {% if comments %}
+                    <div class="comments-list">
+                        {% for comment in comments %}
+                        <div class="card mb-3 {% if comment.author == post.author %}border-primary{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="card-title mb-0">
+                                            {{ comment.author.username }}
+                                            {% if comment.author == post.author %}
+                                            <span class="badge bg-primary">Author</span>
+                                            {% endif %}
+                                        </h6>
+                                        <small class="text-muted">
+                                            {{ comment.created_at|date:"F d, Y" }}
+                                            {% if comment.updated_at != comment.created_at %}
+                                            (edited {{ comment.updated_at|date:"F d, Y" }})
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    {% if user.is_authenticated and user == comment.author %}
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'comment-update' comment.pk %}" class="btn btn-outline-secondary">Edit</a>
+                                        <a href="{% url 'comment-delete' comment.pk %}" class="btn btn-outline-danger">Delete</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text mb-0">{{ comment.content|linebreaks }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <p>No comments yet. Be the first to comment!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
     
     <div class="col-lg-4">

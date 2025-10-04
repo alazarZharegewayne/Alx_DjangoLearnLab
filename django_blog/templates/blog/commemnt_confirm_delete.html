@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Comment - Django Blog{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h3 class="text-center mb-0">Delete Comment</h3>
+            </div>
+            <div class="card-body text-center">
+                <div class="alert alert-warning">
+                    <h5 class="alert-heading">Warning!</h5>
+                    <p class="mb-0">You are about to delete your comment. This action cannot be undone.</p>
+                </div>
+                
+                <div class="card mt-3">
+                    <div class="card-body text-start">
+                        <h6>Your Comment:</h6>
+                        <p class="mb-2">"{{ object.content|truncatewords:20 }}"</p>
+                        <small class="text-muted">
+                            On post: <strong>{{ object.post.title }}</strong><br>
+                            Posted: {{ object.created_at|date:"F d, Y" }}
+                        </small>
+                    </div>
+                </div>
+                
+                <form method="POST" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="{% url 'post-detail' object.post.pk %}" class="btn btn-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-danger">Yes, Delete This Comment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
