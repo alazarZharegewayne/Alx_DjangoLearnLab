@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
+from taggit.managers import TaggableManager
 
 class Post(models.Model):
     title = models.CharField(max_length=200, help_text="Title of the blog post")
@@ -13,6 +14,8 @@ class Post(models.Model):
         related_name='blog_posts',
         help_text="Author who wrote this post"
     )
+    # Add tagging functionality
+    tags = TaggableManager(blank=True, help_text="Tags for categorizing the post")
 
     def __str__(self):
         return f"{self.title} by {self.author.username}"

@@ -7,6 +7,8 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from django.db.models import Q
+from taggit.models import Tag
 from .models import Post, Comment
 from .forms import UserRegisterForm, UserUpdateForm, PostForm, CommentForm
 
@@ -16,10 +18,14 @@ def home(request):
     total_posts = Post.objects.count()
     total_authors = User.objects.count()
     
+    # Get popular tags
+    popular_tags = Tag.objects.all()[:10]
+    
     context = {
         'posts': latest_posts,
         'total_posts': total_posts,
         'total_authors': total_authors,
+        'popular_tags': popular_tags,
     }
     return render(request, 'blog/home.html', context)
 
@@ -99,6 +105,11 @@ class PostListView(ListView):
     context_object_name = 'posts'
     ordering = ['-published_date']
     paginate_by = 5
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['popular_tags'] = Tag.objects.all()[:15]
+        return context
 
 class PostDetailView(DetailView):
     model = Post
@@ -108,6 +119,10 @@ class PostDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['comment_form'] = CommentForm()
         context['comments'] = self.object.comments.all().order_by('-created_at')
+        # Get related posts by tags
+        post_tags_ids = self.object.tags.values_list('id', flat=True)
+        related_posts = Post.objects.filter(tags__in=post_tags_ids).exclude(id=self.object.id)
+        context['related_posts'] = related_posts.distinct()[:5]
         return context
 
 class PostCreateView(LoginRequiredMixin, CreateView):
@@ -154,12 +169,13 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     
     def form_valid(self, form):
         form.instance.author = self.request.user
-        form.instance.post_id = self.kwargs['pk']  # Changed from 'post_id' to 'pk'
+        form.instance.post_id = self.kwargs['pk']
         messages.success(self.request, 'Your comment has been posted successfully!')
         return super().form_valid(form)
     
     def get_success_url(self):
-        return reverse_lazy('post-detail', kwargs={'pk': self.kwargs['pk']})  # Changed from 'post_id' to 'pk'
+        return reverse_lazy('post-detail', kwargs={'pk': self.kwargs['pk']})
+
 class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Comment
     form_class = CommentForm
@@ -191,7 +207,7 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('post-detail', kwargs={'pk': self.object.post.pk})
 
-# Function-based view for adding comments (alternative approach)
+# Function-based view for adding comments
 @login_required
 def add_comment(request, post_id):
     post = get_object_or_404(Post, pk=post_id)
@@ -207,3 +223,41 @@ def add_comment(request, post_id):
         else:
             messages.error(request, 'Please correct the errors in your comment.')
     return redirect('post-detail', pk=post_id)
+
+# Search and Tag Views
+def search_posts(request):
+    query = request.GET.get('q', '')
+    posts = Post.objects.all()
+    
+    if query:
+        # Search in title, content, and tags using Q objects
+        posts = posts.filter(
+            Q(title__icontains=query) |
+            Q(content__icontains=query) |
+            Q(tags__name__icontains=query)
+        ).distinct().order_by('-published_date')
+    
+    context = {
+        'posts': posts,
+        'query': query,
+        'results_count': posts.count(),
+    }
+    return render(request, 'blog/search_results.html', context)
+
+def posts_by_tag(request, tag_name):
+    tag = get_object_or_404(Tag, name=tag_name)
+    posts = Post.objects.filter(tags__name__in=[tag_name]).order_by('-published_date')
+    
+    context = {
+        'tag': tag,
+        'posts': posts,
+        'posts_count': posts.count(),
+    }
+    return render(request, 'blog/posts_by_tag.html', context)
+
+def tag_cloud(request):
+    tags = Tag.objects.all()
+    context = {
+        'tags': tags,
+    }
+    return render(request, 'blog/tag_cloud.html', context)

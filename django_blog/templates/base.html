@@ -17,6 +17,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+<!-- Navigation -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <a class="navbar-brand" href="{% url 'home' %}">Django Blog</a>
@@ -31,7 +32,17 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'post-list' %}">All Posts</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'tag-cloud' %}">Tags</a>
+                </li>
             </ul>
+            
+            <!-- Search Form -->
+            <form class="d-flex me-3" method="GET" action="{% url 'search' %}">
+                <input class="form-control me-2" type="search" name="q" placeholder="Search posts..." aria-label="Search">
+                <button class="btn btn-outline-light" type="submit">Search</button>
+            </form>
+            
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
                 <li class="nav-item">

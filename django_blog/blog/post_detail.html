@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }} - Django Blog{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <article class="card">
+            <div class="card-body">
+                <h1 class="card-title">{{ post.title }}</h1>
+                
+                <div class="post-meta mb-4">
+                    <small class="text-muted">
+                        Written by <strong>{{ post.author.username }}</strong> 
+                        on {{ post.published_date|date:"F d, Y" }}
+                    </small>
+                </div>
+                
+                <div class="post-content">
+                    {{ post.content|linebreaks }}
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <a href="{% url 'post-list' %}" class="btn btn-secondary">← All Posts</a>
+                        <a href="{% url 'home' %}" class="btn btn-outline-primary">← Home</a>
+                    </div>
+                    {% if user.is_authenticated and user == post.author %}
+                    <div>
+                        <a href="{% url 'post-update' post.pk %}" class="btn btn-outline-warning">Edit Post</a>
+                        <a href="{% url 'post-delete' post.pk %}" class="btn btn-outline-danger">Delete Post</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </article>
+
+        <!-- Comments Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    Comments 
+                    <span class="badge bg-primary">{{ comments.count }}</span>
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Comment Form -->
+                {% if user.is_authenticated %}
+                <div class="mb-4">
+                    <h5>Add a Comment</h5>
+                    <form method="POST" action="{% url 'add-comment' post.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ comment_form.content }}
+                            {% if comment_form.content.errors %}
+                                <div class="alert alert-danger mt-2">
+                                    {% for error in comment_form.content.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Post Comment</button>
+                            <a href="{% url 'comment-create' post.pk %}" class="btn btn-outline-secondary">Advanced Comment Editor</a>
+                        </div>
+                    </form>
+                </div>
+                <hr>
+                {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">
+                        <a href="{% url 'login' %}">Login</a> or 
+                        <a href="{% url 'register' %}">register</a> to leave a comment.
+                    </p>
+                </div>
+                {% endif %}
+
+                <!-- Comments List -->
+                {% if comments %}
+                    <div class="comments-list">
+                        {% for comment in comments %}
+                        <div class="card mb-3 {% if comment.author == post.author %}border-primary{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="card-title mb-0">
+                                            {{ comment.author.username }}
+                                            {% if comment.author == post.author %}
+                                            <span class="badge bg-primary">Author</span>
+                                            {% endif %}
+                                        </h6>
+                                        <small class="text-muted">
+                                            {{ comment.created_at|date:"F d, Y" }}
+                                            {% if comment.updated_at != comment.created_at %}
+                                            (edited {{ comment.updated_at|date:"F d, Y" }})
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    {% if user.is_authenticated and user == comment.author %}
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'comment-update' comment.pk %}" class="btn btn-outline-secondary">Edit</a>
+                                        <a href="{% url 'comment-delete' comment.pk %}" class="btn btn-outline-danger">Delete</a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <p class="card-text mb-0">{{ comment.content|linebreaks }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <p>No comments yet. Be the first to comment!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>About the Author</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Username:</strong> {{ post.author.username }}</p>
+                <p><strong>Email:</strong> {{ post.author.email }}</p>
+                <p><strong>Member since:</strong> {{ post.author.date_joined|date:"F d, Y" }}</p>
+                <p><strong>Total posts:</strong> {{ post.author.blog_posts.count }}</p>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Recent Posts by {{ post.author.username }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    {% for recent_post in post.author.blog_posts.all|slice:":5" %}
+                        {% if recent_post.pk != post.pk %}
+                        <a href="{% url 'post-detail' recent_post.pk %}" class="list-group-item list-group-item-action">
+                            {{ recent_post.title }}
+                        </a>
+                        {% endif %}
+                    {% empty %}
+                        <p class="text-muted">No other posts by this author.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

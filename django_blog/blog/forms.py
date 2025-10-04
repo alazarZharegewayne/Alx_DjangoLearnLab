@@ -1,6 +1,7 @@
-from django import forms
+kfrom django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from taggit.forms import TagField
 from .models import Post, Comment
 
 class UserRegisterForm(UserCreationForm):
@@ -87,9 +88,19 @@ class UserUpdateForm(forms.ModelForm):
         return email
 
 class PostForm(forms.ModelForm):
+    # Custom tag field with better styling
+    tags = TagField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter tags separated by commas (e.g., django, python, web)'
+        }),
+        help_text="Separate tags with commas"
+    )
+    
     class Meta:
         model = Post
-        fields = ['title', 'content']
+        fields = ['title', 'content', 'tags']
         
         widgets = {
             'title': forms.TextInput(attrs={

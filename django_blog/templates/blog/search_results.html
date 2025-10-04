@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Search Results - Django Blog{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Search Results</h1>
+            <a href="{% url 'post-list' %}" class="btn btn-outline-secondary">Back to All Posts</a>
+        </div>
+        
+        <!-- Search Form -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" action="{% url 'search' %}" class="row g-3">
+                    <div class="col-md-8">
+                        <input type="text" 
+                               name="q" 
+                               class="form-control form-control-lg" 
+                               placeholder="Search posts by title, content, or tags..."
+                               value="{{ query }}"
+                               required>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Search Results -->
+        {% if query %}
+        <div class="alert alert-info">
+            <h5 class="alert-heading">
+                {% if results_count > 0 %}
+                    Found {{ results_count }} result{{ results_count|pluralize }} for "{{ query }}"
+                {% else %}
+                    No results found for "{{ query }}"
+                {% endif %}
+            </h5>
+        </div>
+        {% endif %}
+
+        {% if posts %}
+            {% for post in posts %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">
+                        <a href="{% url 'post-detail' post.pk %}" class="text-decoration-none text-dark">{{ post.title }}</a>
+                    </h2>
+                    
+                    <!-- Tags -->
+                    {% if post.tags.all %}
+                    <div class="mb-2">
+                        {% for tag in post.tags.all %}
+                        <a href="{% url 'posts-by-tag' tag.name %}" class="badge bg-primary text-decoration-none me-1">
+                            {{ tag.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <p class="card-text">{{ post.content|truncatewords:50 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            By <strong>{{ post.author.username }}</strong> on {{ post.published_date|date:"F d, Y" }}
+                        </small>
+                        <a href="{% url 'post-detail' post.pk %}" class="btn btn-outline-primary btn-sm">Read More</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% elif query %}
+            <div class="text-center py-5">
+                <h4>No posts found matching your search criteria.</h4>
+                <p class="text-muted">Try different keywords or browse all posts.</p>
+                <a href="{% url 'post-list' %}" class="btn btn-primary">Browse All Posts</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Posts tagged "{{ tag.name }}" - Django Blog{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Posts tagged "{{ tag.name }}"</h1>
+            <div>
+                <a href="{% url 'tag-cloud' %}" class="btn btn-outline-info me-2">All Tags</a>
+                <a href="{% url 'post-list' %}" class="btn btn-outline-secondary">All Posts</a>
+            </div>
+        </div>
+
+        <div class="alert alert-primary">
+            <h5 class="alert-heading">
+                Found {{ posts_count }} post{{ posts_count|pluralize }} with tag "{{ tag.name }}"
+            </h5>
+        </div>
+
+        {% if posts %}
+            {% for post in posts %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h2 class="card-title">
+                        <a href="{% url 'post-detail' post.pk %}" class="text-decoration-none text-dark">{{ post.title }}</a>
+                    </h2>
+                    
+                    <!-- Tags -->
+                    {% if post.tags.all %}
+                    <div class="mb-2">
+                        {% for post_tag in post.tags.all %}
+                        <a href="{% url 'posts-by-tag' post_tag.name %}" 
+                           class="badge {% if post_tag.name == tag.name %}bg-primary{% else %}bg-secondary{% endif %} text-decoration-none me-1">
+                            {{ post_tag.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <p class="card-text">{{ post.content|truncatewords:50 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            By <strong>{{ post.author.username }}</strong> on {{ post.published_date|date:"F d, Y" }}
+                        </small>
+                        <a href="{% url 'post-detail' post.pk %}" class="btn btn-outline-primary btn-sm">Read More</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5">
+                <h4>No posts found with this tag.</h4>
+                <p class="text-muted">Try browsing other tags or all posts.</p>
+                <a href="{% url 'tag-cloud' %}" class="btn btn-primary">Browse All Tags</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

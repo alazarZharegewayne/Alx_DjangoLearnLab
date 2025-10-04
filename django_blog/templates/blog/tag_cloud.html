@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}All Tags - Django Blog{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>All Tags</h1>
+            <a href="{% url 'post-list' %}" class="btn btn-outline-secondary">All Posts</a>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Tag Cloud</h5>
+            </div>
+            <div class="card-body">
+                {% if tags %}
+                <div class="tag-cloud">
+                    {% for tag in tags %}
+                    <a href="{% url 'posts-by-tag' tag.name %}" 
+                       class="btn btn-outline-primary btn-sm m-1">
+                        {{ tag.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <p class="text-muted">No tags available yet.</p>
+                    <a href="{% url 'post-create' %}" class="btn btn-primary">Create a Post with Tags</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
