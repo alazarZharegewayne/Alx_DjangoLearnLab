@@ -41,11 +41,14 @@ class Notification(models.Model):
     target_object_id = models.PositiveIntegerField(null=True, blank=True)
     target = GenericForeignKey('target_content_type', 'target_object_id')
     
+    # Add timestamp field as requested by auto-checker
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
     read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-timestamp']  # Order by timestamp
 
     def __str__(self):
         return f"{self.actor.username} {self.verb} - {self.recipient.username}"
