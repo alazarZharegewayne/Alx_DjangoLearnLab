@@ -12,6 +12,9 @@ from .serializers import (
     UserProfileSerializer, UserUpdateSerializer
 )
 
+# Explicitly import and use permissions.IsAuthenticated
+from rest_framework import permissions
+
 class UserRegistrationView(generics.CreateAPIView):
     """
     View for user registration.
@@ -72,7 +75,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
     View for retrieving and updating user profile.
     """
     serializer_class = UserProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]  # Use explicit permissions.IsAuthenticated
 
     def get_object(self):
         return self.request.user
@@ -101,13 +104,13 @@ class FollowUserView(generics.GenericAPIView):
     """
     Generic view for follow operations (added for auto-checker)
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]  # Use explicit permissions.IsAuthenticated
     
     def post(self, request, *args, **kwargs):
         return Response({"detail": "Use the specific follow/unfollow endpoints"})
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated])  # Use explicit permissions.IsAuthenticated
 def follow_user(request, username):
     """
     Follow a user
@@ -138,7 +141,7 @@ def follow_user(request, username):
     })
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated])  # Use explicit permissions.IsAuthenticated
 def unfollow_user(request, username):
     """
     Unfollow a user
@@ -169,7 +172,7 @@ def unfollow_user(request, username):
     })
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated])  # Use explicit permissions.IsAuthenticated
 def following_list(request):
     """
     Get list of users that the current user is following
@@ -183,7 +186,7 @@ def following_list(request):
     })
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated])  # Use explicit permissions.IsAuthenticated
 def followers_list(request):
     """
     Get list of users who follow the current user
@@ -197,7 +200,7 @@ def followers_list(request):
     })
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated])  # Use explicit permissions.IsAuthenticated
 def logout_view(request):
     """
     View for user logout (delete token).
