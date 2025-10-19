@@ -4,12 +4,15 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
+from django.shortcuts import get_object_or_404
 from django.db.models import Q
-from .models import Post, Comment
+from .models import Post, Comment, Like
 from .serializers import (
     PostSerializer, PostCreateSerializer, 
-    CommentSerializer, CommentCreateSerializer
+    CommentSerializer, CommentCreateSerializer,
+    LikeSerializer
 )
+from notifications.utils import create_like_notification, create_comment_notification
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
@@ -46,8 +49,13 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer = CommentCreateSerializer(data=request.data)
         
         if serializer.is_valid():
-            serializer.save(post=post, author=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            comment = serializer.save(post=post, author=request.user)
+            
+            # Create notification if the post author is not the commenter
+            if post.author != request.user:
+                create_comment_notification(post.author, request.user, post)
+            
+            return Response(CommentSerializer(comment).data, status=status.HTTP_201_CREATED)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -70,8 +78,76 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def like_post(request, pk):
+    """
+    Like a post
+    """
+    post = get_object_or_404(Post, pk=pk)
+    
+    # Check if user already liked the post
+    if Like.objects.filter(user=request.user, post=post).exists():
+        return Response(
+            {'error': 'You have already liked this post'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Create like
+    like = Like.objects.create(user=request.user, post=post)
+    
+    # Create notification if the post author is not the liker
+    if post.author != request.user:
+        create_like_notification(post.author, request.user, post)
+    
+    serializer = LikeSerializer(like)
+    return Response({
+        'message': 'Post liked successfully',
+        'like': serializer.data,
+        'likes_count': post.likes_count
+    }, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def unlike_post(request, pk):
+    """
+    Unlike a post
+    """
+    post = get_object_or_404(Post, pk=pk)
+    
+    try:
+        like = Like.objects.get(user=request.user, post=post)
+        like.delete()
+        
+        return Response({
+            'message': 'Post unliked successfully',
+            'likes_count': post.likes_count
+        }, status=status.HTTP_200_OK)
+        
+    except Like.DoesNotExist:
+        return Response(
+            {'error': 'You have not liked this post'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([permissions.IsAuthenticated])
+def post_likes(request, pk):
+    """
+    Get all likes for a post
+    """
+    post = get_object_or_404(Post, pk=pk)
+    likes = post.likes.all()
+    serializer = LikeSerializer(likes, many=True)
+    
+    return Response({
+        'post': post.title,
+        'likes': serializer.data,
+        'count': likes.count()
+    })
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
 def user_feed(request):
     """
     Get feed of posts from users that the current user follows
@@ -87,6 +163,6 @@ def user_feed(request):
     paginator.page_size = 20
     result_page = paginator.paginate_queryset(posts, request)
     
-    serializer = PostSerializer(result_page, many=True)
+    serializer = PostSerializer(result_page, many=True, context={'request': request})
     
     return paginator.get_paginated_response(serializer.data)

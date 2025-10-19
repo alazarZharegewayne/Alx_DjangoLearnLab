@@ -10,4 +10,8 @@ urlpatterns = [
     path('', include(router.urls)),
     # Add feed endpoint
     path('feed/', views.user_feed, name='user-feed'),
+    # Like endpoints
+    path('posts/<int:pk>/like/', views.like_post, name='like-post'),
+    path('posts/<int:pk>/unlike/', views.unlike_post, name='unlike-post'),
+    path('posts/<int:pk>/likes/', views.post_likes, name='post-likes'),
 ]
