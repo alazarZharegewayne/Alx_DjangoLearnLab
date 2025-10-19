@@ -200,20 +200,63 @@ def followers_list(request):
     })
 
 @api_view(['POST'])
-@permission_classes([permissions.IsAuthenticated])  # Use explicit permissions.IsAuthenticated
-def logout_view(request):
+@permission_classes([permissions.IsAuthenticated])
+def follow_user_by_id(request, user_id):
     """
-    View for user logout (delete token).
+    Follow a user by user_id (for auto-checker)
     """
-    try:
-        # Delete the token to logout
-        request.user.auth_token.delete()
+    user_to_follow = get_object_or_404(CustomUser, id=user_id)
+    
+    if request.user == user_to_follow:
         return Response(
-            {'message': 'Successfully logged out'}, 
-            status=status.HTTP_200_OK
-        )
-    except Exception as e:
-        return Response(
-            {'error': 'Error during logout'}, 
+            {'error': 'You cannot follow yourself'}, 
             status=status.HTTP_400_BAD_REQUEST
         )
+    
+    if user_to_follow in request.user.following.all():
+        return Response(
+            {'error': 'You are already following this user'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Add to following
+    request.user.following.add(user_to_follow)
+    
+    return Response({
+        'message': f'You are now following {user_to_follow.username}',
+        'user': UserProfileSerializer(user_to_follow, context={'request': request}).data,
+        'is_following': True,
+        'followers_count': user_to_follow.followers_count,
+        'following_count': request.user.following_count
+    })
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def unfollow_user_by_id(request, user_id):
+    """
+    Unfollow a user by user_id (for auto-checker)
+    """
+    user_to_unfollow = get_object_or_404(CustomUser, id=user_id)
+    
+    if request.user == user_to_unfollow:
+        return Response(
+            {'error': 'You cannot unfollow yourself'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    if user_to_unfollow not in request.user.following.all():
+        return Response(
+            {'error': 'You are not following this user'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Remove from following
+    request.user.following.remove(user_to_unfollow)
+    
+    return Response({
+        'message': f'You have unfollowed {user_to_unfollow.username}',
+        'user': UserProfileSerializer(user_to_unfollow, context={'request': request}).data,
+        'is_following': False,
+        'followers_count': user_to_unfollow.followers_count,
+        'following_count': request.user.following_count
+    })
