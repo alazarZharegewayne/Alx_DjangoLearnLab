@@ -63,9 +63,34 @@ class UserLoginSerializer(serializers.Serializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     followers_count = serializers.ReadOnlyField()
     following_count = serializers.ReadOnlyField()
+    is_following = serializers.SerializerMethodField()
 
     class Meta:
         model = CustomUser
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'bio', 'profile_picture', 
-                 'followers_count', 'following_count', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = [
+            'id', 'username', 'email', 'first_name', 'last_name', 
+            'bio', 'profile_picture', 'date_of_birth', 'website',
+            'location', 'followers_count', 'following_count', 'is_following',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def get_is_following(self, obj):
+        """
+        Check if the current user is following this user
+        """
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return request.user.following.filter(id=obj.id).exists()
+        return False
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for updating user profile.
+    """
+    class Meta:
+        model = CustomUser
+        fields = [
+            'first_name', 'last_name', 'bio', 'profile_picture',
+            'date_of_birth', 'website', 'location'
+        ]
